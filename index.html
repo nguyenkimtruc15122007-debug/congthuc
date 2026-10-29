@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo Định Lượng Pha Chế - Menu MOZO</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        .select-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #475569;
+            font-size: 15px;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f8fafc;
+            outline: none;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+        select:focus { border-color: #3b82f6; }
+        
+        #size-container { display: none; }
+        
+        .quiz-section {
+            display: none;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .drink-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .drink-header h2 { margin: 0; color: #0f172a; font-size: 22px; }
+        .drink-header p { margin: 5px 0 0 0; color: #64748b; font-weight: 600; }
+        
+        .ingredient-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .ingredient-name {
+            font-weight: 600;
+            color: #334155;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        input[type="tel"].answer-input {
+            width: 70px;
+            padding: 10px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+        }
+        input[type="tel"].answer-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .unit-label {
+            margin-left: 8px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .correct {
+            border-color: #10b981 !important;
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .feedback {
+            font-size: 14px;
+            width: 100%;
+            margin-top: 8px;
+            text-align: right;
+            display: none;
+        }
+        .feedback.error-text { color: #dc2626; display: block; }
+        .feedback.success-text { color: #059669; display: block; }
+
+        /* Vùng chứa 2 nút bấm */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-confirm {
+            flex: 2; /* Chiếm 2 phần */
+            padding: 14px;
+            background: #3b82f6;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        .btn-confirm:hover { background: #2563eb; }
+        .btn-confirm:active { transform: scale(0.98); }
+
+        .btn-reset {
+            flex: 1; /* Chiếm 1 phần */
+            padding: 14px;
+            background: #e2e8f0;
+            color: #475569;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        .btn-reset:hover { background: #cbd5e1; }
+        .btn-reset:active { transform: scale(0.98); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Khảo Công Thức MOZO</h1>
+    
+    <div class="select-group">
+        <label for="drink-select">Chọn đồ uống để khảo:</label>
+        <select id="drink-select">
+            <option value="">-- Bấm để chọn món --</option>
+        </select>
+    </div>
+
+    <div class="select-group" id="size-container">
+        <label for="size-select">Chọn Size:</label>
+        <select id="size-select"></select>
+    </div>
+
+    <div class="quiz-section" id="quiz-section">
+        <div class="drink-header">
+            <h2 id="drink-title">Tên món</h2>
+            <p id="size-title">(Size)</p>
+        </div>
+        
+        <div id="quiz-form"></div>
+        
+        <div class="button-group">
+            <button class="btn-confirm" onclick="checkAnswers()">Kiểm tra kết quả</button>
+            <button class="btn-reset" onclick="resetQuiz()">Làm lại</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const recipesData = {
+        "CÀ PHÊ ĐEN PHA PHIN": { "S": [{"name": "Đường gói", "amount": "2GR"}, {"name": "Cà phê", "amount": "40ML"}], "M": [{"name": "Đường gói", "amount": "3GR"}, {"name": "Cà phê", "amount": "60ML"}] },
+        "BẠC XỈU": { "S": [{"name": "Sữa đặc", "amount": "25gr"}, {"name": "Sữa tươi", "amount": "75ml"}, {"name": "Cà phê", "amount": "30ML"}], "M": [{"name": "Sữa đặc", "amount": "35gr"}, {"name": "Sữa tươi", "amount": "115ml"}, {"name": "Cà phê", "amount": "40ML"}] },
+        "CACAO SỮA": { "S": [{"name": "Cacao", "amount": "10gr"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Nước sôi", "amount": "70ml"}], "M": [{"name": "Cacao", "amount": "12gr"}, {"name": "Sữa đặc", "amount": "40gr"}, {"name": "Nước sôi", "amount": "110ml"}] },
+        "CÀ PHÊ SỮA PHA PHIN": { "S": [{"name": "Sữa đặc", "amount": "20GR"}, {"name": "Cà phê", "amount": "40ML"}], "M": [{"name": "Sữa đặc", "amount": "30GR"}, {"name": "Cà phê", "amount": "60ML"}] },
+        "CÀ PHÊ MUỐI": { "S": [{"name": "Cà phê", "amount": "60ML"}, {"name": "Sữa đặc", "amount": "35GR"}, {"name": "Kem muối", "amount": "3 muỗng"}], "M": [{"name": "Cà phê", "amount": "90ML"}, {"name": "Sữa đặc", "amount": "50GR"}, {"name": "Kem muối", "amount": "4 muỗng"}] },
+        "ĐỊNH LƯỢNG KEM MUỐI": { "Chuẩn": [{"name": "Rich", "amount": "1 HỘP"}, {"name": "Muối", "amount": "8GR"}, {"name": "Sữa đặc", "amount": "60GR"}, {"name": "Phô mai", "amount": "1 MIẾNG"}] },
+        "ĐỊNH LƯỢNG TRÀ ĐÁ 1 BÌNH": { "Chuẩn": [{"name": "Trà lài", "amount": "20GR"}, {"name": "Nước", "amount": "1 LÍT"}, {"name": "Ủ lần 1", "amount": "15P"}, {"name": "Ủ lần 2", "amount": "5P"}] },
+        "Ủ CÀ PHÊ PHIN": { "Chuẩn": [{"name": "Cà phê", "amount": "200GR"}, {"name": "Ủ dưới", "amount": "50ML"}, {"name": "Ủ trên", "amount": "300ML"}, {"name": "Ủ lần 1", "amount": "3-4 PHÚT"}, {"name": "Ủ trên đợt 2", "amount": "450ML"}, {"name": "Ủ lần 2", "amount": "8 PHÚT"}, {"name": "Thành phẩm", "amount": "400ML CỐT"}] },
+        "ESPRESSO": { "S": [{"name": "Đường cát", "amount": "1/3 MUỖNG"}, {"name": "Cà phê hạt", "amount": "2 SHOT"}], "M": [{"name": "Đường cát", "amount": "2/3 MUỖNG"}, {"name": "Cà phê hạt", "amount": "2 SHOT + 20ML DÃO"}] },
+        "CAPPUCHINO/LATTE": { "M": [{"name": "Đường cát để riêng", "amount": "4gr"}, {"name": "Cà phê", "amount": "1 shot"}, {"name": "Sữa tươi", "amount": "220ml"}] },
+        "CARAMEL MATCHIATO": { "S": [{"name": "Caramel", "amount": "10GR"}, {"name": "Syrup vanila", "amount": "20ml"}, {"name": "Sữa tươi", "amount": "100ml"}, {"name": "Cà phê hạt", "amount": "30ML"}], "M": [{"name": "Caramel", "amount": "20gr"}, {"name": "Syrup vanila", "amount": "30ML"}, {"name": "Sữa tươi", "amount": "150ml"}, {"name": "Cà phê hạt", "amount": "40ML"}] },
+        "ESPRESSO SỮA": { "S": [{"name": "Sữa đặc", "amount": "20GR"}, {"name": "Cà phê hạt", "amount": "2 SHOT"}], "M": [{"name": "Sữa đặc", "amount": "30GR"}, {"name": "Cà phê hạt", "amount": "2 SHOT + 20ML DÃO"}] },
+        "TRÀ MÃNG CẦU DÂU TẰM": { "M": [{"name": "Cốt trà", "amount": "120ML"}, {"name": "Đường nước", "amount": "30ml"}, {"name": "Tắc", "amount": "1 TRÁI VỪA"}, {"name": "Mãng cầu", "amount": "80gr"}, {"name": "Dâu tằm", "amount": "25gr"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Cốt trà", "amount": "150ML"}, {"name": "Đường nước", "amount": "40ml"}, {"name": "Tắc", "amount": "2 TRÁI ĐỀU, HOẶC 1 TO 1 NHỎ"}, {"name": "Mãng cầu", "amount": "100gr"}, {"name": "Dâu tằm", "amount": "30gr"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "2/3 MUỖNG INOX"}] },
+        "TRÀ SEN CỦ NĂNG MATCHIATO": { "M": [{"name": "Cốt trà", "amount": "120ML"}, {"name": "Đường nước", "amount": "25ml"}, {"name": "Sen", "amount": "30gr"}, {"name": "Kem muối", "amount": "3 MUỖNG"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Cốt trà", "amount": "150ML"}, {"name": "Đường nước", "amount": "30ml"}, {"name": "Sen", "amount": "40gr"}, {"name": "Kem muối", "amount": "4 MUỖNG"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}] },
+        "TRÀ BƯỞI MƠ MÀNG": { "M": [{"name": "Cốt trà", "amount": "120ML"}, {"name": "Đường nước", "amount": "8ml"}, {"name": "Tắc", "amount": "1 TRÁI VỪA"}, {"name": "Bưởi hồng", "amount": "25gr"}, {"name": "Mơ má đào", "amount": "15gr"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Cốt trà", "amount": "150ML"}, {"name": "Đường nước", "amount": "10ml"}, {"name": "Tắc", "amount": "2 TRÁI ĐỀU, HOẶC 1 TO 1 NHỎ"}, {"name": "Bưởi hồng", "amount": "30gr"}, {"name": "Mơ má đào", "amount": "20gr"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "2/3 MUỖNG INOX"}] },
+        "TRÀ ỔI CHANH VÀNG": { "M": [{"name": "Cốt trà", "amount": "120ML"}, {"name": "Đường nước", "amount": "8ml"}, {"name": "Tắc", "amount": "1 TRÁI VỪA"}, {"name": "Sunquick ổi", "amount": "20gr"}, {"name": "Syrup chanh vàng", "amount": "18ml"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Cốt trà", "amount": "150ML"}, {"name": "Đường nước", "amount": "10ml"}, {"name": "Tắc", "amount": "2 TRÁI ĐỀU, HOẶC 1 TO 1 NHỎ"}, {"name": "Sunquick ổi", "amount": "25gr"}, {"name": "Syrup chanh vàng", "amount": "20ml"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}, {"name": "Củ năng", "amount": "2/3 MUỖNG INOX"}] },
+        "OLONG LÀI HẠNH NHÂN": { "M": [{"name": "Cốt trà sữa", "amount": "120ML"}, {"name": "Đường nước", "amount": "10ML"}, {"name": "Sữa đặc", "amount": "10GR"}, {"name": "Syrup hạnh nhân", "amount": "15ml"}, {"name": "Củ năng", "amount": "1/3 MUỖNG INOX"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Cốt trà sữa", "amount": "150ML"}, {"name": "Đường nước", "amount": "13ML"}, {"name": "Sữa đặc", "amount": "15GR"}, {"name": "Syrup hạnh nhân", "amount": "20ml"}, {"name": "Củ năng", "amount": "2/3 MUỖNG INOX"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}] },
+        "OLONG LÀI KEM MUỐI": { "M": [{"name": "Cốt trà sữa", "amount": "120ML"}, {"name": "Đường nước", "amount": "10ML"}, {"name": "Sữa đặc", "amount": "10GR"}, {"name": "Syrup hạnh nhân", "amount": "15ml"}, {"name": "Củ năng", "amount": "1/3 MUỖNG INOX"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}, {"name": "Kem muối", "amount": "4 MUỖNG"}], "L": [{"name": "Cốt trà sữa", "amount": "150ML"}, {"name": "Đường nước", "amount": "13ML"}, {"name": "Sữa đặc", "amount": "15GR"}, {"name": "Syrup hạnh nhân", "amount": "20ml"}, {"name": "Củ năng", "amount": "2/3 MUỖNG INOX"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}, {"name": "Kem muối", "amount": "5 MUỖNG"}] },
+        "CÁCH Ủ TRÀ SỮA": { "Chuẩn": [{"name": "Trà lài", "amount": "50GR"}, {"name": "Trà olong", "amount": "30GR"}, {"name": "Bọt sữa", "amount": "250GR"}, {"name": "Đường cát", "amount": "100GR"}, {"name": "Nước sôi", "amount": "2 LÍT"}, {"name": "Thời gian ủ", "amount": "35P"}] },
+        "CÁCH Ủ TRÀ TRÁI CÂY": { "Chuẩn": [{"name": "Trà lài", "amount": "40GR"}, {"name": "Trà olong", "amount": "10GR"}, {"name": "Nước sôi", "amount": "2,3 LÍT"}, {"name": "Thời gian ủ", "amount": "40P"}] },
+        "CÁCH NẤU SƯƠNG SÁO": { "Chuẩn": [{"name": "Bột sương sáo", "amount": "1 BỊCH"}, {"name": "Nước lạnh", "amount": "800ML"}, {"name": "Đường cát", "amount": "80GR"}, {"name": "Syrup thạch lựu", "amount": "50ML"}] },
+        "CAM": { "M": [{"name": "Cam", "amount": "450gr"}, {"name": "Đường cát", "amount": "20gr"}], "L": [{"name": "Cam", "amount": "650"}, {"name": "Đường cát", "amount": "30gr"}] },
+        "TÁO": { "M": [{"name": "Táo", "amount": "300gr"}, {"name": "Đường cát", "amount": "20gr"}], "L": [{"name": "Táo", "amount": "400"}, {"name": "Đường cát", "amount": "30gr"}] },
+        "THƠM": { "M": [{"name": "Táo", "amount": "300gr"}, {"name": "Đường cát", "amount": "20gr"}], "L": [{"name": "Táo", "amount": "400"}, {"name": "Đường cát", "amount": "30gr"}] },
+        "DƯA HẤU": { "M": [{"name": "Dưa hấu", "amount": "350gr"}, {"name": "Đường cát", "amount": "20gr"}], "L": [{"name": "Dưa hấu", "amount": "450"}, {"name": "Đường cát", "amount": "30gr"}] },
+        "COLD BREW TRUYỀN THỐNG": { "M": [{"name": "Chanh vàng", "amount": "20gr"}, {"name": "Cà phê", "amount": "150ML"}] },
+        "COLD BREW BƯỞI": { "M": [{"name": "Bưởi hồng", "amount": "30gr"}, {"name": "Đường cát", "amount": "9ML"}, {"name": "Cà phê", "amount": "120ML"}] },
+        "COLD BREW CAM": { "M": [{"name": "Cam", "amount": "50ML"}, {"name": "Đường cát", "amount": "9ML"}, {"name": "Cà phê", "amount": "120ML"}] },
+        "CÁCH Ủ COLDBREW CHO 1 MẺ": { "M": [{"name": "Cà phê hạt arabica xay thô", "amount": "100GR"}, {"name": "Nước lạnh sạch", "amount": "1 LÍT"}, {"name": "Thời gian ủ ngon", "amount": "12-14 TIẾNG"}] },
+        "SỮA CHUA ĐÁ": { "M": [{"name": "Sữa chua", "amount": "1 hộp"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Tắc", "amount": "1 TRÁI"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Sữa chua", "amount": "2 hộp"}, {"name": "Sữa đặc", "amount": "60gr"}, {"name": "Tắc", "amount": "2 TRÁI"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}] },
+        "SỮA CHUA HẠT NGŨ CỐC": { "M": [{"name": "Sữa chua", "amount": "1 hộp"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Tắc", "amount": "1 TRÁI"}, {"name": "Hạt ngũ cốc", "amount": "40GR"}], "L": [{"name": "Sữa chua", "amount": "2 hộp"}, {"name": "Sữa đặc", "amount": "60gr"}, {"name": "Tắc", "amount": "2 TRÁI"}, {"name": "Hạt ngũ cốc", "amount": "50gr"}] },
+        "SỮA CHUA DÂU TẰM": { "M": [{"name": "Sữa chua", "amount": "1 hộp"}, {"name": "Sữa đặc", "amount": "20gr"}, {"name": "Tắc", "amount": "1 TRÁI"}, {"name": "Muứt dâu tằm", "amount": "25GR"}, {"name": "Thạch sương sáo", "amount": "1/3 MUỖNG INOX"}], "L": [{"name": "Sữa chua", "amount": "2 hộp"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Tắc", "amount": "2 TRÁI"}, {"name": "Muứt dâu tằm", "amount": "35gr"}, {"name": "Thạch sương sáo", "amount": "2/3 MUỖNG INOX"}] },
+        "FREEZE CHOCOLATE": { "M": [{"name": "Sữa tươi", "amount": "25ml"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Rich", "amount": "25gr"}, {"name": "Cacao", "amount": "15gr"}, {"name": "Bột frappe", "amount": "15gr"}, {"name": "Đường nước", "amount": "20ML"}, {"name": "Đá", "amount": "300GR"}], "L": [{"name": "Sữa tươi", "amount": "35ml"}, {"name": "Sữa đặc", "amount": "40gr"}, {"name": "Rich", "amount": "35gr"}, {"name": "Cacao", "amount": "20gr"}, {"name": "Bột frappe", "amount": "20gr"}, {"name": "Đường nước", "amount": "30ML"}, {"name": "Đá", "amount": "500GR"}] },
+        "FREEZE COOKIES & CREAM": { "M": [{"name": "Sữa tươi", "amount": "25ml"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Rich", "amount": "25gr"}, {"name": "Cacao", "amount": "10gr"}, {"name": "Bột frappe", "amount": "15gr"}, {"name": "Đường nước", "amount": "20ML"}, {"name": "Bánh oreo", "amount": "2 cái"}, {"name": "Đá", "amount": "300GR"}], "L": [{"name": "Sữa tươi", "amount": "35ml"}, {"name": "Sữa đặc", "amount": "40gr"}, {"name": "Rich", "amount": "35gr"}, {"name": "Cacao", "amount": "15gr"}, {"name": "Bột frappe", "amount": "20gr"}, {"name": "Đường nước", "amount": "30ML"}, {"name": "Bánh oreo", "amount": "3 cái"}, {"name": "Đá", "amount": "500GR"}] },
+        "FREEZE CARAMEL": { "M": [{"name": "Sữa tươi", "amount": "25ml"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Rich", "amount": "25gr"}, {"name": "Bột frappe", "amount": "15gr"}, {"name": "Đường nước", "amount": "20ML"}, {"name": "Caramel", "amount": "20gr"}, {"name": "Đá", "amount": "300GR"}], "L": [{"name": "Sữa tươi", "amount": "35ml"}, {"name": "Sữa đặc", "amount": "40gr"}, {"name": "Rich", "amount": "35gr"}, {"name": "Bột frappe", "amount": "20gr"}, {"name": "Đường nước", "amount": "30ML"}, {"name": "Caramel", "amount": "30gr"}, {"name": "Đá", "amount": "500GR"}] },
+        "FREEZE COFFEE": { "M": [{"name": "Sữa tươi", "amount": "25ml"}, {"name": "Sữa đặc", "amount": "30gr"}, {"name": "Rich", "amount": "25gr"}, {"name": "Bột frappe", "amount": "15gr"}, {"name": "Đường nước", "amount": "20ml"}, {"name": "Cà phê", "amount": "30ml"}, {"name": "Đá", "amount": "300GR"}], "L": [{"name": "Sữa tươi", "amount": "35ml"}, {"name": "Sữa đặc", "amount": "40gr"}, {"name": "Rich", "amount": "35gr"}, {"name": "Bột frappe", "amount": "20gr"}, {"name": "Đường nước", "amount": "30ml"}, {"name": "Cà phê", "amount": "45ml"}, {"name": "Đá", "amount": "500GR"}] },
+        "CÁCH LÀM KEM BÔNG BÌNH 1 LÍT": { "Chuẩn": [{"name": "Base", "amount": "250GR"}, {"name": "Rich", "amount": "150GR"}, {"name": "Sữa tuoi", "amount": "50ML"}, {"name": "Gas", "amount": "1 VIÊN"}] }
+    };
+
+    const drinkSelect = document.getElementById("drink-select");
+    const sizeContainer = document.getElementById("size-container");
+    const sizeSelect = document.getElementById("size-select");
+    const quizSection = document.getElementById("quiz-section");
+    const quizForm = document.getElementById("quiz-form");
+    const drinkTitle = document.getElementById("drink-title");
+    const sizeTitle = document.getElementById("size-title");
+
+    let currentIngredients = [];
+
+    // Hàm tách số và đơn vị
+    function parseAmount(amountStr) {
+        const match = amountStr.match(/^([\d.,\/-]+)\s*(.*)$/);
+        if (match) {
+            return { value: match[1], unit: match[2] };
+        }
+        return { value: amountStr, unit: "" }; 
+    }
+
+    // Đổ danh sách món
+    Object.keys(recipesData).forEach(drinkName => {
+        const option = document.createElement("option");
+        option.value = drinkName;
+        option.textContent = drinkName;
+        drinkSelect.appendChild(option);
+    });
+
+    // Lắng nghe chọn món
+    drinkSelect.addEventListener("change", function() {
+        const selectedDrink = this.value;
+        if (!selectedDrink) {
+            sizeContainer.style.display = "none";
+            quizSection.style.display = "none";
+            return;
+        }
+        const sizes = Object.keys(recipesData[selectedDrink]);
+        sizeSelect.innerHTML = '<option value="">-- Chọn Size --</option>';
+
+        if (sizes.length === 1 && sizes[0] === "Chuẩn") {
+            sizeContainer.style.display = "none";
+            renderQuiz(selectedDrink, "Chuẩn");
+        } else {
+            sizes.forEach(size => {
+                const opt = document.createElement("option");
+                opt.value = size;
+                opt.textContent = `Size ${size}`;
+                sizeSelect.appendChild(opt);
+            });
+            sizeContainer.style.display = "block";
+            quizSection.style.display = "none"; 
+        }
+    });
+
+    // Lắng nghe chọn size
+    sizeSelect.addEventListener("change", function() {
+        if (!this.value) { quizSection.style.display = "none"; return; }
+        renderQuiz(drinkSelect.value, this.value);
+    });
+
+    // Tạo giao diện form
+    function renderQuiz(drinkName, size) {
+        drinkTitle.textContent = drinkName;
+        sizeTitle.textContent = size === "Chuẩn" ? "(Định lượng tiêu chuẩn)" : `(Size ${size})`;
+        currentIngredients = recipesData[drinkName][size];
+        
+        quizForm.innerHTML = "";
+        
+        currentIngredients.forEach((item, index) => {
+            const parsed = parseAmount(item.amount);
+            const row = document.createElement("div");
+            row.className = "ingredient-row";
+            
+            row.innerHTML = `
+                <div class="ingredient-name">${item.name}:</div>
+                <div class="input-group">
+                    <input type="tel" id="ing_${index}" class="answer-input" autocomplete="off">
+                    <span class="unit-label">${parsed.unit}</span>
+                </div>
+                <span id="feedback_${index}" class="feedback"></span>
+            `;
+            quizForm.appendChild(row);
+        });
+        
+        quizSection.style.display = "block";
+    }
+
+    // Chấm điểm
+    function checkAnswers() {
+        currentIngredients.forEach((item, index) => {
+            const input = document.getElementById(`ing_${index}`);
+            const feedback = document.getElementById(`feedback_${index}`);
+            
+            const parsed = parseAmount(item.amount);
+            
+            const userAnswer = input.value.replace(/\s+/g, '').toLowerCase();
+            const correctAnswer = parsed.value.replace(/\s+/g, '').toLowerCase();
+
+            input.classList.remove("correct", "incorrect");
+
+            if (userAnswer === correctAnswer) {
+                input.classList.add("correct");
+                feedback.innerHTML = "✅ Đúng";
+                feedback.className = "feedback success-text";
+            } else {
+                input.classList.add("incorrect");
+                feedback.innerHTML = `❌ Đáp án đúng: <b>${parsed.value}</b>`;
+                feedback.className = "feedback error-text";
+            }
+        });
+    }
+
+    // Hàm làm lại bài (Reset)
+    function resetQuiz() {
+        currentIngredients.forEach((item, index) => {
+            const input = document.getElementById(`ing_${index}`);
+            const feedback = document.getElementById(`feedback_${index}`);
+            
+            // Xóa nội dung người dùng nhập
+            input.value = "";
+            // Xóa màu xanh, đỏ
+            input.classList.remove("correct", "incorrect");
+            // Ẩn nội dung đáp án (reset lại class gốc ban đầu)
+            feedback.className = "feedback";
+        });
+        
+        // Tự động focus con trỏ vào ô đầu tiên để nhập lại luôn cho tiện
+        const firstInput = document.getElementById('ing_0');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }
+</script>
+
+</body>
+</html>
